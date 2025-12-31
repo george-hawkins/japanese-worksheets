@@ -12,7 +12,12 @@ FURIGANA_CELL_SIDE = 4 * mm
 KANJI_FURIGANA_GAP = 0.8 * mm
 COLUMN_GAP = 1.5 * mm
 
-GUIDELINE_GRAY = 0.8
+LARGE_KANJI_CELL_SIDE = 30 * mm
+LARGE_KANJI_BORDER = 2 * mm
+
+SEPARATOR = 5 * mm
+
+GUIDELINE_GRAY = 0.85
 GUIDELINE_WIDTH = 0.5
 
 GRID_GRAY = 0
@@ -21,7 +26,7 @@ GRID_LINE_WIDTH = 1
 FURIGANA_GRAY = 0.7
 
 TRACING_STRENGTH = 0.75
-TRACING_FREQ = 4  # How often traceable characters are drawn.
+TRACING_FREQ = 3  # How often traceable characters are drawn.
 
 KANJIVG_BASE_URL = "https://raw.githubusercontent.com/KanjiVG/kanjivg/refs/heads/master/kanji"
 KANJIVG_CACHE_DIR = "kanjivg_cache"

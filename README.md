@@ -1,7 +1,9 @@
 Japanese worksheets
 ===================
 
-Create Japanese worksheet PDFs.
+A small Python appliction to create Japanese worksheet PDFs like [this](example.pdf).
+
+![example](example.png)
 
 Install
 -------
@@ -19,5 +21,5 @@ Run
 ---
 
 ```
-(venv) $ python worksheet.py --filename=kanji_practice.pdf --characters='一二三四五六七八九十'
+(venv) $ python worksheet.py --filename=example.pdf --characters='日月田目古吾冒朋明唱晶品'
 ```

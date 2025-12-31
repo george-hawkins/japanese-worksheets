@@ -78,11 +78,7 @@ class KanjiDrawer:
         if strength is not None:
             self.fade_drawing(drawing, strength)
 
-        # Scale proportionally so height ≈ `size`
-        if drawing.height > 0:
-            scale = size / drawing.height
-        else:
-            scale = 1.0
+        scale = size / drawing.height if drawing.height > 0 else 1.0
         drawing.scale(scale, scale)
 
         renderPDF.draw(drawing, self.c, x, y)

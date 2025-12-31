@@ -8,21 +8,24 @@ from draw_kanji import KanjiDrawer
 class PracticeGrid:
     def __init__(self, filename: str):
         self.c = canvas.Canvas(filename, pagesize=config.PAGE_SIZE)
+        self.kanji_drawer = KanjiDrawer(self.c)
 
     def draw(self, chars):
         page_width, page_height = config.PAGE_SIZE
 
-        x = config.MARGIN_LEFT
-        y = page_height - config.MARGIN_TOP
+        start_x = config.MARGIN_LEFT
+        start_y = page_height - config.MARGIN_TOP
         width = page_width - (config.MARGIN_LEFT + config.MARGIN_RIGHT)
-        height = page_height - (config.MARGIN_TOP + config.MARGIN_BOTTOM)
 
-        self._draw(chars, x, y, width, height)
+        start_y = self._draw_stroke_order_kanji(chars, start_x, start_y, width)
+        start_y -= config.SEPARATOR
+        height = start_y - config.MARGIN_BOTTOM
+        self._draw_worksheet(chars, start_x, start_y, width, height)
 
         self.c.save()
         print("Done")
 
-    def _draw(self, chars, start_x, start_y, width, height):
+    def _draw_worksheet(self, chars, start_x, start_y, width, height):
         col_width = config.KANJI_CELL_SIDE + config.KANJI_FURIGANA_GAP + config.FURIGANA_CELL_SIDE
         cols = self.divisions(width, col_width, config.COLUMN_GAP)
         rows = self.divisions(height, config.KANJI_CELL_SIDE)
@@ -95,23 +98,52 @@ class PracticeGrid:
 
         side = config.KANJI_CELL_SIDE - 2 * config.KANJI_BORDER
 
-        cell_count = 0
         total_cells = cols * rows
-        cells_per_char = total_cells // len(chars)
-
-        drawer = KanjiDrawer(self.c)
+        cells_per_char = total_cells // (config.TRACING_FREQ * len(chars))
+        cell_count = 0
+        offset = 0
+        current_count = 0
 
         for col in reversed(range(cols)):
             for row in range(rows):
                 if cell_count % config.TRACING_FREQ == 0:
-                    offset = cell_count // cells_per_char
                     if offset < len(chars):
                         char = chars[offset]
                         x = start_x + col * col_unit
                         y = start_y - row * config.KANJI_CELL_SIDE
-                        drawer.draw(char, x, y, side, strength=config.TRACING_STRENGTH)
+                        self.kanji_drawer.draw(char, x, y, side, strength=config.TRACING_STRENGTH)
+                        current_count += 1
+                        if current_count == cells_per_char:
+                            offset += 1
+                            current_count = 0
 
                 cell_count += 1
+
+    def _draw_stroke_order_kanji(self, chars, start_x, start_y, width) -> int:
+        cols = self.divisions(width, config.LARGE_KANJI_CELL_SIDE)
+        rows = math.ceil(len(chars) / cols)
+        # Recalculating `cols` means that instead of e.g. splitting 10 characters
+        # into one row of 6 and one of 4, it's split into two rows of 5.
+        cols = math.ceil(len(chars) / rows)
+
+        start_y -= config.LARGE_KANJI_CELL_SIDE
+        start_x += (width - cols * config.LARGE_KANJI_CELL_SIDE) / 2
+
+        side = config.LARGE_KANJI_CELL_SIDE - 2 * config.LARGE_KANJI_BORDER
+
+        offset = 0
+
+        for row in range(rows):
+            for col in range(cols):
+                    char = chars[offset]
+                    x = start_x + col * config.LARGE_KANJI_CELL_SIDE
+                    y = start_y - row * config.LARGE_KANJI_CELL_SIDE
+                    self.kanji_drawer.draw(char, x, y, side, show_numbers=True)
+                    offset += 1
+                    if offset == len(chars):
+                        break
+
+        return start_y - (rows - 1) * config.LARGE_KANJI_CELL_SIDE
 
     def set_gray(self, gray):
         self.c.setStrokeColorRGB(gray, gray, gray)
